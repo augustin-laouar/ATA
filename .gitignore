@@ -1,4 +1,5 @@
-./data/
-./labelled-data/
-./stats/
-./stats/*
+data/
+data/
+labelled-data/
+stats/
+stats/

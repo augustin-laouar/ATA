@@ -3,6 +3,7 @@ import app_traffic
 import stats
 import argparse
 import plot
+import distribution
 
 def create_parser():
 
@@ -22,6 +23,8 @@ def create_parser():
                         help="Apply a clustering algorithm to generate sub-flows from application traffic.")
     parser.add_argument("-s", "--stats", action="store_true", 
                         help="Generate statistics based on labelled data (output from the clustering step).")
+    parser.add_argument("-d", "--distributions", action="store_true", 
+                        help="Generate distributions based on labelled data (output from the clustering step).")
     parser.add_argument("-pt", "--plot-throughput", action="store_true", 
                         help="Plot the overall throughput or the throughput for a specific sub-flow (use with --sub-flow).")
     parser.add_argument("-pit", "--plot-inter-times", action="store_true", 
@@ -36,6 +39,8 @@ def create_parser():
     # Optional arguments
     parser.add_argument("-so", "--stats-output", type=str, default="./stats/output.json", 
                         help="Path to the output JSON file for statistics (default: ./stats/output.json).")
+    parser.add_argument("-do", "--distribution-output", type=str, default="./distributions/output.json", 
+                        help="Path to the output JSON file for distributions (default: ./distributions/output.json).")
     parser.add_argument("--input-app-traffic", type=str, 
                         help="Input CSV file containing extracted application packets.")
     parser.add_argument("--input-labelled-data", type=str, 
@@ -65,6 +70,13 @@ def create_parser():
     parser.add_argument("--bin-size", type=float, 
                         help="Bin size for the distribution plots (e.g., inter-packet times or packet sizes).")
 
+    #JSON dist arguments
+    parser.add_argument("--packet-size-bin", type=int, default=100,
+                    help="Bin size for the distribution in bytes.")
+    parser.add_argument("--inter-packet-time-bin", type=float, default=5,
+                    help="Bin size for the distribution in millisecond.")
+
+
 
     return parser
 
@@ -75,6 +87,7 @@ def main():
     app_traffic_file = args.output_app_traffic
     labelled_data_file = args.output_labelled_data
     stats_file = args.stats_output
+    dist_file = args.distribution_output
 
     if args.app_traffic:
         if args.input: #we have pcapng input
@@ -104,6 +117,16 @@ def main():
         else:
             stats.process_sub_flows(labelled_data_file, stats_file)
 
+    if args.distributions:
+        size_bin = args.packet_size_bin
+        time_bin = args.inter_packet_time_bin
+        if args.input_labelled_data:
+            labelled_data_file = args.input_labelled_data
+        if args.sub_flow:
+            flow_num =args.sub_flow
+            distribution.sub_flow_distribution(labelled_data_file, flow_num, dist_file, time_bin, size_bin)
+        else:
+            distribution.overall_traffic_distribution(labelled_data_file, dist_file, time_bin, size_bin)
 
     if args.plot_throughput:
         if args.input_labelled_data:

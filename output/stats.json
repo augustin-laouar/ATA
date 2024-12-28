@@ -1,0 +1,158 @@
+{
+    "sub-flows": [
+        {
+            "label": "4",
+            "type": "stats",
+            "packet-sizes": {
+                "min": 3140.0,
+                "max": 5764.0,
+                "mean": 4680.235204855842,
+                "mean_of_squares": 22419544.37784522,
+                "stddev": 717.5951540201571,
+                "variance": 514942.80507321295,
+                "coef_of_variation": 0.15332459216486322
+            },
+            "inter-packet-times": {
+                "min": 41.57614707946777,
+                "max": 2947.948694229126,
+                "mean": 153.28336233063672,
+                "mean_of_squares": 63110.6353299239,
+                "stddev": 199.03478631269115,
+                "variance": 39614.84616253863,
+                "coef_of_variation": 1.2984761247823313
+            }
+        },
+        {
+            "label": "0",
+            "type": "stats",
+            "packet-sizes": {
+                "min": 691.0,
+                "max": 691.0,
+                "mean": 691.0,
+                "mean_of_squares": 477481.0,
+                "stddev": 0.0,
+                "variance": 0.0,
+                "coef_of_variation": 0.0
+            },
+            "inter-packet-times": {
+                "min": 0.04982948303222656,
+                "max": 2218.003511428833,
+                "mean": 64.86323757208382,
+                "mean_of_squares": 11541.419983574298,
+                "stddev": 85.63982949096591,
+                "variance": 7334.180395241714,
+                "coef_of_variation": 1.3203138279336217
+            }
+        },
+        {
+            "label": "3",
+            "type": "stats",
+            "packet-sizes": {
+                "min": 5956.0,
+                "max": 8772.0,
+                "mean": 7026.544256120527,
+                "mean_of_squares": 49959474.924670435,
+                "stddev": 766.2576208104288,
+                "variance": 587150.7414500588,
+                "coef_of_variation": 0.10905184581211083
+            },
+            "inter-packet-times": {
+                "min": 41.594743728637695,
+                "max": 2756.302833557129,
+                "mean": 190.30661627931414,
+                "mean_of_squares": 80284.04838757474,
+                "stddev": 209.9224623233365,
+                "variance": 44067.44018789263,
+                "coef_of_variation": 1.1030749557084871
+            }
+        },
+        {
+            "label": "5",
+            "type": "stats",
+            "packet-sizes": {
+                "min": 5.0,
+                "max": 19861.0,
+                "mean": 6295.540268456376,
+                "mean_of_squares": 67513494.2852349,
+                "stddev": 5280.119980973834,
+                "variance": 27879667.013479117,
+                "coef_of_variation": 0.8387079989670979
+            },
+            "inter-packet-times": {
+                "min": 0.13518333435058594,
+                "max": 2391.282796859741,
+                "mean": 339.6175461586076,
+                "mean_of_squares": 279720.4483993816,
+                "stddev": 405.4384919326083,
+                "variance": 164380.37074058768,
+                "coef_of_variation": 1.1938090258247762
+            }
+        },
+        {
+            "label": "2",
+            "type": "stats",
+            "packet-sizes": {
+                "min": 20997.0,
+                "max": 39413.0,
+                "mean": 33288.74193548387,
+                "mean_of_squares": 1130455698.419355,
+                "stddev": 4723.9135017602075,
+                "variance": 22315358.77211239,
+                "coef_of_variation": 0.1419072403191299
+            },
+            "inter-packet-times": {
+                "min": 1969.3682193756104,
+                "max": 14039.970636367798,
+                "mean": 3333.7908506393433,
+                "mean_of_squares": 18447872.017953627,
+                "stddev": 2708.08245482796,
+                "variance": 7333710.582147031,
+                "coef_of_variation": 0.8123132422385205
+            }
+        },
+        {
+            "label": "1",
+            "type": "stats",
+            "packet-sizes": {
+                "min": 165526.0,
+                "max": 202720.0,
+                "mean": 186808.25,
+                "mean_of_squares": 35093123043.25,
+                "stddev": 13992.88301914584,
+                "variance": 195800775.1875,
+                "coef_of_variation": 0.07490505916706484
+            },
+            "inter-packet-times": {
+                "min": 2193.413257598877,
+                "max": 57963.03701400757,
+                "mean": 25264.05056317647,
+                "mean_of_squares": 1202999960.14542,
+                "stddev": 23764.000279554843,
+                "variance": 564727709.2866826,
+                "coef_of_variation": 0.9406251076061405
+            }
+        },
+        {
+            "label": "6",
+            "type": "stats",
+            "packet-sizes": {
+                "min": 39989.0,
+                "max": 57976.0,
+                "mean": 45316.46666666667,
+                "mean_of_squares": 2072559599.9333334,
+                "stddev": 4356.311373423876,
+                "variance": 18977448.78222222,
+                "coef_of_variation": 0.09613087016398475
+            },
+            "inter-packet-times": {
+                "min": 1977.9043197631836,
+                "max": 21959.918975830078,
+                "mean": 4569.020322390965,
+                "mean_of_squares": 47912948.74148048,
+                "stddev": 5199.711726149714,
+                "variance": 27037002.035058837,
+                "coef_of_variation": 1.1380364627988149
+            }
+        }
+    ]
+}

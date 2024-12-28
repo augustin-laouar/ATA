@@ -56,14 +56,17 @@ def process_sub_flow(input_file, output_file, flow_num):
         raise ValueError(f"Invalid flow number: {flow_num}. Available flows: {list(sub_flows.keys())}")
     
     sub_flow = sub_flows[flow_num]
-    
     statistics = compute_packet_statistics(sub_flow)
-    count = len(sub_flow)
     
     results = {
-        "count": count,
-        "inter_packet_times": statistics["inter_packet_times"],
-        "packet_sizes": statistics["packet_sizes"]
+        "sub-flows": [
+            {
+                "label": flow_num,
+                "type": "stats",
+                "packet-sizes": statistics["packet_sizes"],
+                "inter-packet-times": statistics["inter_packet_times"]
+            }
+        ]
     }
     
     with open(output_file, mode="w") as json_file:
@@ -72,25 +75,20 @@ def process_sub_flow(input_file, output_file, flow_num):
     print(f"Statistics for flow {flow_num} saved in {output_file}")
 
 
-
-
 def process_sub_flows(input_file, output_file):
     sub_flows = sf.create_sub_flows(input_file)
     
-    results = {}
+    results = {"sub-flows": []}
     for label, sub_flow in sub_flows.items():
         statistics = compute_packet_statistics(sub_flow)
-        count = len(sub_flow)
-        results[label] = {
-            "count": count,
-            "inter_packet_times": statistics["inter_packet_times"],
-            "packet_sizes": statistics["packet_sizes"]
-        }
+        results["sub-flows"].append({
+            "label": label,
+            "type": "stats",
+            "packet-sizes": statistics["packet_sizes"],
+            "inter-packet-times": statistics["inter_packet_times"]
+        })
     
     with open(output_file, mode="w") as json_file:
         json.dump(results, json_file, indent=4)
     
     print(f"Statistics saved in {output_file}")
-
-
-

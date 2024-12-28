@@ -4,53 +4,40 @@ import stats
 import argparse
 import plot
 import distribution
-
+import generator
 def create_parser():
-
     parser = argparse.ArgumentParser(
         description=(
             "This script automates the analysis of application traffic. "
-            "Its main functions include extracting application-level traffic from a Layer 4 (TCP) pcap capture, "
-            "using clustering algorithms to generate sub-flows from the main application flow, "
-            "and generating statistics and visualizations (graphs) for the flow or its sub-flows."
+            "It supports traffic extraction, clustering, statistics generation, distribution analysis, and plotting."
         )
     )
 
-    # Modes
-    parser.add_argument("-a", "--app-traffic", action="store_true", 
-                        help="Extract application traffic from a pcap capture (Layer 4 - TCP).")
-    parser.add_argument("-c", "--clustering", action="store_true", 
-                        help="Apply a clustering algorithm to generate sub-flows from application traffic.")
-    parser.add_argument("-s", "--stats", action="store_true", 
-                        help="Generate statistics based on labelled data (output from the clustering step).")
-    parser.add_argument("-d", "--distributions", action="store_true", 
-                        help="Generate distributions based on labelled data (output from the clustering step).")
-    parser.add_argument("-pt", "--plot-throughput", action="store_true", 
-                        help="Plot the overall throughput or the throughput for a specific sub-flow (use with --sub-flow).")
-    parser.add_argument("-pit", "--plot-inter-times", action="store_true", 
-                        help="Plot the distribution of inter-packet times. Use --sub-flow to specify a sub-flow.")
-    parser.add_argument("-ps", "--plot-packet-sizes", action="store_true", 
-                        help="Plot the distribution of packet sizes. Use --sub-flow to specify a sub-flow.")
+    # Mode principal
+    parser.add_argument(
+        "-m","--mode", type=str, required=True,
+        choices=["app-traffic", "clustering", "stats", "distributions", "generate", "plot"],
+        help="Select the operation mode: app-traffic, clustering, stats, distributions, generate, or plot."
+    )
 
-    # Input
-    parser.add_argument("-in", "--input", type=str, 
-                        help="Input capture file in pcap or pcapng format.")
+    # Input and output
+    parser.add_argument(
+        "--input", type=str, required=True,
+        help="Path to the main input file (e.g., pcap, CSV, or JSON)."
+    )
+    parser.add_argument(
+        "--output", type=str,
+        help="Directory where all output files will be saved (default: ./output)."
+    )
 
-    # Optional arguments
-    parser.add_argument("-so", "--stats-output", type=str, default="./stats/output.json", 
-                        help="Path to the output JSON file for statistics (default: ./stats/output.json).")
-    parser.add_argument("-do", "--distribution-output", type=str, default="./distributions/output.json", 
-                        help="Path to the output JSON file for distributions (default: ./distributions/output.json).")
-    parser.add_argument("--input-app-traffic", type=str, 
-                        help="Input CSV file containing extracted application packets.")
-    parser.add_argument("--input-labelled-data", type=str, 
-                        help="Input CSV file containing labelled application packets.")
-    parser.add_argument("--output-app-traffic", type=str, default="./data/app_traffic.csv", 
-                        help="Path to save the output CSV file with extracted application packets (default: ./data/app_traffic.csv).")
-    parser.add_argument("--output-labelled-data", type=str, default="./labelled-data/labelled.csv", 
-                        help="Path to save the output CSV file with labelled application packets (default: ./labelled-data/labelled.csv).")
-    parser.add_argument("--clustering-algorithm", type=str, default="gmm", 
+    # Optional: Specific arguments for modes
+    parser.add_argument("--clustering-algorithm", type=str, default="gmm",
                         help="Clustering algorithm to use. Options: 'gmm' (default) or 'dbscan'.")
+    parser.add_argument("--sub-flow", type=str, help="Specify the sub-flow number to analyze.")
+    parser.add_argument("--time-interval", type=float, default=100, help="Time interval for distributions.")
+    parser.add_argument("--size-interval", type=int, default=100, help="Size interval for distributions.")
+    parser.add_argument("--bin-size", type=float, help="Bin size for distribution plots.")
+    parser.add_argument("--duration", type=int, default=10, help="Packet generation duration (in seconds).")
 
     # GMM-specific arguments
     parser.add_argument("--gmm-max-components", type=int, default=10, 
@@ -64,101 +51,74 @@ def create_parser():
     parser.add_argument("--dbscan-min-samples", type=int, default=5, 
                         help="The minimum samples parameter for the DBSCAN clustering algorithm (default: 5).")
 
-    # Plot arguments
-    parser.add_argument("--sub-flow", type=str, 
-                        help="Specify the sub-flow number to analyze for throughput, inter-packet times, or packet sizes.")
-    parser.add_argument("--bin-size", type=float, 
-                        help="Bin size for the distribution plots (e.g., inter-packet times or packet sizes).")
-
-    #JSON dist arguments
-    parser.add_argument("--packet-size-bin", type=int, default=100,
-                    help="Bin size for the distribution in bytes.")
-    parser.add_argument("--inter-packet-time-bin", type=float, default=5,
-                    help="Bin size for the distribution in millisecond.")
-
-
-
     return parser
 
 def main():
     parser = create_parser()
     args = parser.parse_args()
+    app_traffic_file = "app_traffic.csv"
+    labelled_data_file = "labelled_app_traffic.csv"
+    stats_file = "stats.json"
+    dist_file = "distributions.json"
+    generated_csv_file = "generated_app_traffic.csv"
 
-    app_traffic_file = args.output_app_traffic
-    labelled_data_file = args.output_labelled_data
-    stats_file = args.stats_output
-    dist_file = args.distribution_output
+    if args.mode == "app-traffic":
+        if args.output:
+            app_traffic_file = args.output
+        app_traffic.extract_application_traffic(args.input, app_traffic_file)
 
-    if args.app_traffic:
-        if args.input: #we have pcapng input
-            data_file = args.input
-        else:
-            parser.error("Please specify an input file.")
-        app_traffic.extract_application_traffic(data_file, app_traffic_file)
-    
-    if args.clustering:
-        if args.input_app_traffic:
-            app_traffic_file = args.input_app_traffic
+    elif args.mode == "clustering":
+        if args.output:
+            labelled_data_file = args.output
+        if args.input:
+            app_traffic_file = args.input
         if args.clustering_algorithm == "gmm":
-            max_components = args.gmm_max_components
-            min_cluster_size = args.gmm_min_cluster_size
-            clustering.apply_gmm_clustering(app_traffic_file, labelled_data_file, max_components, min_cluster_size)
-        if args.clustering_algorithm == "dbscan":
-            eps = args.dbscan_eps
-            min_samples = args.dbscan_min_samples
-            clustering.apply_dbscan_clustering(app_traffic_file, labelled_data_file, eps, min_samples)
-    
-    if args.stats:
-        if args.input_labelled_data:
-            labelled_data_file = args.input_labelled_data
+            clustering.apply_gmm_clustering(
+                app_traffic_file, labelled_data_file, args.gmm_max_components, args.gmm_min_cluster_size)
+        elif args.clustering_algorithm == "dbscan":
+            clustering.apply_dbscan_clustering(
+                app_traffic_file, labelled_data_file, args.dbscan_eps, args.dbscan_min_samples)
+
+    elif args.mode == "generate":
+        if args.output:
+            generated_csv_file = args.output
+        generator.lauch(args.input, args.duration, generated_csv_file)
+
+    elif args.mode == "stats":
+        if args.output:
+            stats_file = args.output
+        if args.input:
+            labelled_data_file = args.input
         if args.sub_flow:
-            flow_num =args.sub_flow
-            stats.process_sub_flow(labelled_data_file, stats_file, flow_num)
+            stats.process_sub_flow(labelled_data_file, stats_file, args.sub_flow)
         else:
             stats.process_sub_flows(labelled_data_file, stats_file)
 
-    if args.distributions:
-        size_bin = args.packet_size_bin
-        time_bin = args.inter_packet_time_bin
-        if args.input_labelled_data:
-            labelled_data_file = args.input_labelled_data
+    elif args.mode == "distributions":
+        if args.output:
+            dist_file = args.output
+        if args.input:
+            labelled_data_file = args.input
         if args.sub_flow:
-            flow_num =args.sub_flow
-            distribution.sub_flow_distribution(labelled_data_file, flow_num, dist_file, time_bin, size_bin)
+            distribution.sub_flow_distribution(
+                labelled_data_file, args.sub_flow, dist_file, args.time_interval, args.size_interval)
         else:
-            distribution.overall_traffic_distribution(labelled_data_file, dist_file, time_bin, size_bin)
+            distribution.sub_flows_distribution(
+                labelled_data_file, dist_file, args.time_interval, args.size_interval)
 
-    if args.plot_throughput:
-        if args.input_labelled_data:
-            labelled_data_file = args.input_labelled_data
-        if args.sub_flow:
-            flow_num =args.sub_flow
-            plot.plot_flow_throughput(labelled_data_file, flow_num)
-        else:
+    elif args.mode.startswith("plot"):
+        if args.input:
+            labelled_data_file = args.input
+        if args.mode == "plot-throughput":
             plot.plot_overall_throughput(labelled_data_file)
+        elif args.mode == "plot-inter-times":
+            plot.plot_overall_inter_packet_times(labelled_data_file, args.bin_size)
+        elif args.mode == "plot-packet-sizes":
+            plot.plot_overall_packet_size(labelled_data_file, args.bin_size)
 
-    if args.plot_inter_times:
-        if args.input_labelled_data:
-            labelled_data_file = args.input_labelled_data
-        bin_size = 1
-        if args.bin_size:
-            bin_size = args.bin_size
-        if args.sub_flow:
-            flow_num =args.sub_flow
-            plot.plot_inter_packet_times(labelled_data_file, flow_num, bin_size)
-        else:
-            plot.plot_overall_inter_packet_times(labelled_data_file, bin_size)
+    else:
+        raise ValueError(f"Unknown mode: {args.mode}")
 
-    if args.plot_packet_sizes:
-        if args.input_labelled_data:
-            labelled_data_file = args.input_labelled_data
-        bin_size = 100
-        if args.bin_size:
-            bin_size = args.bin_size
-        if args.sub_flow:
-            flow_num =args.sub_flow
-            plot.plot_packet_size(labelled_data_file, flow_num, bin_size)
-        else:
-            plot.plot_overall_packet_size(labelled_data_file, bin_size)
+
 if __name__ == "__main__":
     main()

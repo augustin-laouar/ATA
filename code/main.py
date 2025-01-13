@@ -54,6 +54,14 @@ def create_parser():
     parser.add_argument("--dbscan-min-samples", type=int, default=5, 
                         help="The minimum samples parameter for the DBSCAN clustering algorithm (default: 5).")
 
+    #generator arguments
+    parser.add_argument("--ipt-generator", type=str, default="uni",
+            choices=["dist","uni","norm","exp"],
+            help="Inter packet times generator mode.")
+    parser.add_argument("--ps-generator", type=str, default="uni",
+            choices=["dist","uni","norm","exp"],
+            help="Packet sizes generator mode.")
+    
     #KS comparison arguments
     parser.add_argument("--ks-original-traffic", type=str,
                 help="Original traffic CSV file.")
@@ -95,7 +103,7 @@ def main():
     elif args.mode == "generate":
         if args.output:
             generated_csv_file = args.output
-        generator.lauch(args.input, args.duration, generated_csv_file)
+        generator.lauch(args.input, args.duration, args.ps_generator, args.ipt_generator, generated_csv_file)
 
     elif args.mode == "stats":
         if args.output:

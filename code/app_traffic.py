@@ -1,5 +1,6 @@
 import pyshark
 import csv
+import argparse
 
 def extract_application_traffic(input_pcap, output_csv):
     capture = pyshark.FileCapture(input_pcap, display_filter="tcp")
@@ -40,3 +41,30 @@ def extract_application_traffic(input_pcap, output_csv):
             writer.writerow([time, size])
 
     print(f"Saved in {output_csv}")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description=(
+            "This script provide functions to extract applicative messages from a PCAP trace. "
+        )
+    )
+    parser.add_argument(
+        "--input", 
+        type=str, 
+        required=True,
+        help="Path to the input file (PCAP)."
+    )
+    parser.add_argument(
+        "--output", 
+        type=str, 
+        required=True,
+        help="Path to the output file."
+    )
+
+    args = parser.parse_args()
+    extract_application_traffic(args.input, args.output)
+
+
+if __name__ == "__main__":
+    main()

@@ -59,7 +59,7 @@ def plot_overall_throughput(input_file):
 
     duration = timestamps[-1] - timestamps[0]
     if duration <= 0:
-        raise ValueError(f"Invalid flow {flow_num}: duration must be greater than 0.")
+        raise ValueError(f"Invalid : duration must be greater than 0.")
     total_size = sum(sizes)
     average_throughput = (total_size * 8) / duration
     print(f"Average throughput: {average_throughput:.2f} bits per second (bps)")

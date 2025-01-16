@@ -1,5 +1,6 @@
 from scipy.stats import ks_2samp
 import csv
+import argparse
 
 def get_sizes(csv_filename):
     sizes = []
@@ -42,3 +43,26 @@ def compare_with_ks(original_csv, generated_csv):
     print("KS statistic =", ks_stat)
     print("p-value =", p_value)
 
+def main():
+    parser = argparse.ArgumentParser(
+        description=(
+            "This script provide functions to perform Kolmogorov-Smirnov test."
+        )
+    )
+    parser.add_argument(
+        "--original-traffic", 
+        type=str,
+        required=True,
+        help="Original traffic CSV file.")
+    
+    parser.add_argument(
+        "--generated-traffic", 
+        type=str,
+        required=True,
+        help="Generated traffic CSV file.")
+    args = parser.parse_args()
+    
+    compare_with_ks(args.original_traffic, args.generated_traffic)
+
+if __name__ == "__main__":
+    main()

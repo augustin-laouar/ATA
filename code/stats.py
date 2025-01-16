@@ -1,6 +1,7 @@
 import json
 import numpy as np
 import sub_flows as sf
+import argparse
 
 
 def calculate_statistics(values):
@@ -92,3 +93,36 @@ def process_sub_flows(input_file, output_file):
         json.dump(results, json_file, indent=4)
     
     print(f"Statistics saved in {output_file}")
+
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description=(
+            "This script extracts statistics (message size and inter message times) from applicative messages."
+        )
+    )
+    parser.add_argument(
+        "--input", 
+        type=str, 
+        required=True,
+        help="Path to the input file (PCAP)."
+    )
+    parser.add_argument(
+        "--output", 
+        type=str, 
+        required=True,
+        help="Path to the output file."
+    )
+    parser.add_argument(
+        "--sub-flow", 
+        type=str, 
+        help="Specify the sub-flow number to analyze.")
+    args = parser.parse_args()
+
+    if args.sub_flow:
+        process_sub_flow(args.input, args.output, args.sub_flow)
+    else:
+        process_sub_flows(args.input, args.output)
+if __name__ == "__main__":
+    main()

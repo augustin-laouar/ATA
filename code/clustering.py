@@ -3,6 +3,7 @@ from sklearn.cluster import DBSCAN
 from sklearn.mixture import GaussianMixture
 import numpy as np
 import csv
+import argparse
 
 
 def count_packet_sizes_from_csv(output_csv):
@@ -19,40 +20,6 @@ def count_packet_sizes_from_csv(output_csv):
     print("Packet size present more than once :")
     for size, count in repeated_sizes.items():
         print(f"Size : {size} Bytes, Occure : {count}")
-
-def apply_dbscan_clustering(input_csv, output_csv, eps, min_samples):
-    data = []
-    with open(input_csv, mode="r") as infile:
-        reader = csv.DictReader(infile)
-        for row in reader:
-            size = int(row["Size"])
-            data.append(size)
-
-    #2D array
-    data_array = np.array(data).reshape(-1, 1)
-
-    dbscan = DBSCAN(eps=eps, min_samples=min_samples)
-    labels = dbscan.fit_predict(data_array)
-
-    #Write labels
-    with open(input_csv, mode="r") as infile, open(output_csv, mode="w", newline="") as outfile:
-        reader = csv.DictReader(infile)
-        fieldnames = reader.fieldnames + ["Label"]
-        writer = csv.DictWriter(outfile, fieldnames=fieldnames)
-
-        writer.writeheader()
-        for row, label in zip(reader, labels):
-            row["Label"] = label
-            writer.writerow(row)
-
-    unique_labels = set(labels)
-    print("Clusters :")
-    for label in unique_labels:
-        if label == -1:
-            print(f"Cluster {label} : Noise")
-        else:
-            print(f"Cluster {label}")
-
 
 def apply_gmm_clustering(input_csv, output_csv, max_components, min_cluster_size):
     data = []
@@ -111,3 +78,41 @@ def apply_gmm_clustering(input_csv, output_csv, max_components, min_cluster_size
         for row, label in zip(reader, labels):
             row["Label"] = label
             writer.writerow(row)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description=(
+            "This script provide functions to apply GMM clustering on a traffic trace. "
+        )
+    )
+    parser.add_argument(
+        "--input", 
+        type=str, 
+        required=True,
+        help="Path to the input file (CSV)."
+    )
+    parser.add_argument(
+        "--output", 
+        type=str, 
+        required=True,
+        help="Path to the output file."
+    )
+    parser.add_argument(
+        "--max-components", 
+        type=int, 
+        default=50, 
+        help="Maximum number of components for the GMM clustering algorithm (default: 10).")
+    parser.add_argument(
+        "--min-cluster-size", 
+        type=int, 
+        default=100, 
+        help="Minimum cluster size for the GMM clustering algorithm (default: 2).")
+
+
+    args = parser.parse_args()
+    apply_gmm_clustering(args.input, args.output, args.max_components, args.min_cluster_size)
+
+
+if __name__ == "__main__":
+    main()

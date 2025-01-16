@@ -1,7 +1,8 @@
 import csv
 import json
 from collections import defaultdict
-from typing import List, Tuple, Dict
+from typing import List
+import argparse
 
 def generate_distribution(values: List[float], interval: float) -> List[Dict[str, float]]:
     min_value = min(values)
@@ -117,3 +118,48 @@ def sub_flows_distribution(input_file, output_file, time_bin, size_bin):
     with open(output_file, "w") as json_file:
         json.dump({"sub-flows": results}, json_file, indent=4)
     print(f"Distributions for all sub-flows saved to {output_file}")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description=(
+            "This script extracts distributions (message size and inter message times) from applicative messages."
+        )
+    )
+    parser.add_argument(
+        "--input", 
+        type=str, 
+        required=True,
+        help="Path to the input file (PCAP)."
+    )
+    parser.add_argument(
+        "--output", 
+        type=str, 
+        required=True,
+        help="Path to the output file."
+    )
+    parser.add_argument(
+        "--sub-flow", 
+        type=str, 
+        help="Specify the sub-flow number to analyze.")
+    parser.add_argument(
+        "--time-interval", 
+        type=float, 
+        default=100, 
+        help="Time interval for distributions.")
+    parser.add_argument(
+        "--size-interval", 
+        type=int, 
+        default=100, 
+        help="Size interval for distributions.")
+    
+    args = parser.parse_args()
+
+    if args.sub_flow:
+        sub_flow_distribution(args.input, args.output, args.sub_flow, args.time_interval, args.size_interval)
+    else:
+        sub_flows_distribution(args.input, args.output, args.time_interval, args.size_interval)
+
+
+if __name__ == "__main__":
+    main()

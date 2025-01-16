@@ -5,6 +5,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment
 from openpyxl.cell.rich_text import CellRichText, TextBlock
 from openpyxl.cell.text import InlineFont
+import argparse
 
 
 def truncate_to_4_decimals(value):
@@ -138,3 +139,32 @@ def stats_comparison_xlsx(input_json_file_1, input_json_file_2, output_file="sta
             cell.alignment = Alignment(wrap_text=True, vertical="top")
 
     wb.save(output_file)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description=(
+            "This script create an XLSX file to compare sub flows statistics. "
+        )
+    )
+    parser.add_argument(
+        "--original", 
+        type=str, 
+        required=True,
+        help="Original trafic statistics (JSON)."
+    )
+    parser.add_argument(
+        "--generated", 
+        type=str, 
+        required=True,
+        help="Generated trafic statistics (JSON)."
+    )
+    parser.add_argument(
+        "--output", type=str,
+        help="Output XLSX file."
+    )
+    args = parser.parse_args()
+    stats_comparison_xlsx(args.original, args.generated, args.output)
+
+if __name__ == "__main__":
+    main()
